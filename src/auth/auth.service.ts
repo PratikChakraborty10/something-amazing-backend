@@ -49,12 +49,20 @@ export class AuthService {
     }
 
     // Create profile in our database
-    await this.profileService.createProfile({
-      id: data.user.id,
-      email: data.user.email!,
-      firstName,
-      lastName,
-    });
+    try {
+      await this.profileService.createProfile({
+        id: data.user.id,
+        email: data.user.email!,
+        firstName,
+        lastName,
+      });
+    } catch (error) {
+      // Handle unique constraint violation (orphaned profile)
+      if (error.code === '23505') { // Postgres unique_violation
+        throw new ConflictException('An account with this email already exists. Please log in.');
+      }
+      throw error;
+    }
 
     return {
       message: 'User registered successfully',

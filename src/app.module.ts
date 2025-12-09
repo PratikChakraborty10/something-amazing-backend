@@ -5,6 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProfileModule } from './profile/profile.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { ContactListsModule } from './contact-lists/contact-lists.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { EmailTemplatesModule } from './email-templates/email-templates.module';
 
 @Module({
   imports: [
@@ -48,6 +52,10 @@ import { ProfileModule } from './profile/profile.module';
     // Feature modules
     AuthModule,
     ProfileModule,
+    ContactsModule,
+    ContactListsModule,
+    CampaignsModule,
+    EmailTemplatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
