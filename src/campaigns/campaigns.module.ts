@@ -7,7 +7,7 @@ import { CampaignEvent } from './entities/campaign-event.entity';
 import { ContactList } from '../contact-lists/entities/contact-list.entity';
 import { ContactListMember } from '../contact-lists/entities/contact-list-member.entity';
 import { Contact } from '../contacts/entities/contact.entity';
-import { ResendService } from '../common/resend/resend.service';
+import { SesService } from '../common/email/ses.service';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { ResendService } from '../common/resend/resend.service';
     ]),
   ],
   controllers: [CampaignsController],
-  providers: [CampaignsService, ResendService],
+  providers: [CampaignsService, SesService],
   exports: [CampaignsService],
 })
 export class CampaignsModule {}

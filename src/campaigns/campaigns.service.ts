@@ -10,7 +10,7 @@ import { CampaignEvent } from './entities/campaign-event.entity';
 import { ContactList } from '../contact-lists/entities/contact-list.entity';
 import { ContactListMember } from '../contact-lists/entities/contact-list-member.entity';
 import { Contact } from '../contacts/entities/contact.entity';
-import { ResendService } from '../common/resend/resend.service';
+import { SesService } from '../common/email/ses.service';
 import {
   CreateCampaignDto,
   UpdateCampaignDto,
@@ -73,7 +73,7 @@ export class CampaignsService {
     private readonly memberRepository: Repository<ContactListMember>,
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
-    private readonly resendService: ResendService,
+    private readonly emailService: SesService,
   ) {}
 
   /**
@@ -439,7 +439,7 @@ export class CampaignsService {
       }
 
       // Send via Resend
-      const result = await this.resendService.sendCampaign({
+      const result = await this.emailService.sendCampaign({
         campaignId: campaign.id,
         senderName: campaign.senderName,
         senderEmail: campaign.senderEmail,
@@ -582,7 +582,7 @@ export class CampaignsService {
     }
 
     try {
-      await this.resendService.sendTestEmail({
+      await this.emailService.sendTestEmail({
         recipientEmail: dto.recipientEmail,
         senderName: campaign.senderName,
         senderEmail: campaign.senderEmail,

@@ -9,6 +9,7 @@ import { ContactsModule } from './contacts/contacts.module';
 import { ContactListsModule } from './contact-lists/contact-lists.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { EmailTemplatesModule } from './email-templates/email-templates.module';
+import { DomainsModule } from './domains/domains.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { EmailTemplatesModule } from './email-templates/email-templates.module';
     ContactListsModule,
     CampaignsModule,
     EmailTemplatesModule,
+    DomainsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
