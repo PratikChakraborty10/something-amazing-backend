@@ -23,17 +23,16 @@ export class DomainsService {
     @InjectRepository(Domain)
     private readonly domainRepository: Repository<Domain>,
   ) {
-    const region = this.configService.get<string>('AWS_REGION');
-    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+    // Use AWS_SES_REGION first (dedicated SES region), then fallback to ap-south-1
+    // Do NOT use AWS_REGION as Lambda sets it to the deployment region automatically
+    const awsSesRegion = this.configService.get<string>('AWS_SES_REGION');
+    const region = awsSesRegion || 'ap-south-1';
+    
+    this.logger.log(`Initializing SES Client for DomainsService in region: ${region}`);
 
-    this.ses = new SESClient({
-      region,
-      credentials: {
-        accessKeyId: accessKeyId || '',
-        secretAccessKey: secretAccessKey || '',
-      },
-    });
+    // Do NOT explicitly pass credentials
+    // AWS SDK v3 auto-detects from IAM role (Lambda) or env vars (local)
+    this.ses = new SESClient({ region });
   }
 
   /**

@@ -10,7 +10,7 @@ provider:
   region: ${opt:region, 'ap-south-1'}
   memorySize: 512
   timeout: 30
-  
+
   # Environment variables for all functions
   environment:
     NODE_ENV: production
@@ -20,9 +20,10 @@ provider:
     SUPABASE_JWT_SECRET: ${env:SUPABASE_JWT_SECRET}
     DATABASE_URL: ${env:DATABASE_URL}
     FRONTEND_URL: ${env:FRONTEND_URL}
+    # SES region: Uses env var from .env if available, otherwise defaults to ap-south-1
     AWS_SES_REGION: ${env:AWS_SES_REGION, 'ap-south-1'}
     RESEND_API_KEY: ${env:RESEND_API_KEY}
-  
+
   # IAM Role Statements
   iam:
     role:
@@ -32,7 +33,9 @@ provider:
             - ses:SendEmail
             - ses:SendRawEmail
             - ses:VerifyDomainIdentity
+            - ses:VerifyDomainDkim
             - ses:GetIdentityVerificationAttributes
+            - ses:GetIdentityDkimAttributes
             - ses:DeleteIdentity
           Resource: '*'
         - Effect: Allow
