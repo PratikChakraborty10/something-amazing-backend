@@ -1,0 +1,110 @@
+service: something-amazing-backend
+
+# Automatically load environment variables from .env files
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-south-1'}
+  memorySize: 512
+  timeout: 30
+  
+  # Environment variables for all functions
+  environment:
+    NODE_ENV: production
+    SUPABASE_URL: ${env:SUPABASE_URL}
+    SUPABASE_ANON_KEY: ${env:SUPABASE_ANON_KEY}
+    SUPABASE_SERVICE_ROLE_KEY: ${env:SUPABASE_SERVICE_ROLE_KEY}
+    SUPABASE_JWT_SECRET: ${env:SUPABASE_JWT_SECRET}
+    DATABASE_URL: ${env:DATABASE_URL}
+    FRONTEND_URL: ${env:FRONTEND_URL}
+    AWS_SES_REGION: ${env:AWS_SES_REGION, 'ap-south-1'}
+    RESEND_API_KEY: ${env:RESEND_API_KEY}
+  
+  # IAM Role Statements
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+            - ses:VerifyDomainIdentity
+            - ses:GetIdentityVerificationAttributes
+            - ses:DeleteIdentity
+          Resource: '*'
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: '*'
+
+  # API Gateway configuration
+  httpApi:
+    cors:
+      allowedOrigins:
+        - ${env:FRONTEND_URL, '*'}
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Amz-Date
+        - X-Api-Key
+        - X-Amz-Security-Token
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      allowCredentials: true
+
+functions:
+  api:
+    handler: dist/lambda.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: ANY
+      - httpApi:
+          path: /
+          method: ANY
+    # VPC configuration (uncomment if your database is in VPC)
+    # vpc:
+    #   securityGroupIds:
+    #     - sg-xxxxxxxxx
+    #   subnetIds:
+    #     - subnet-xxxxxxxxx
+    #     - subnet-yyyyyyyyy
+
+plugins:
+  - serverless-offline
+
+# Package configuration
+package:
+  individually: false
+  excludeDevDependencies: true
+  patterns:
+    - '!node_modules/@types/**'
+    - '!node_modules/typescript/**'
+    - '!node_modules/ts-node/**'
+    - '!node_modules/@typescript-eslint/**'
+    - '!node_modules/eslint/**'
+    - '!node_modules/prettier/**'
+    - '!node_modules/jest/**'
+    - '!src/**'
+    - '!test/**'
+    - '!.git/**'
+    - '!.env*'
+    - '!*.md'
+    - 'dist/**'
+    - 'node_modules/**'
+
+# Custom configuration
+custom:
+  serverless-offline:
+    httpPort: 3001
+    noPrependStageInUrl: true

@@ -37,10 +37,22 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env
+.env.*
+!.env.example
+!.env.*.example
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+
+# Serverless Framework
+.serverless/
+.serverless_plugins/
+serverless.env.yml
+.env.dev
+.env.staging
+.env.prod
+
 
 # temp directory
 .temp

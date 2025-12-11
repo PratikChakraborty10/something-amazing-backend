@@ -20,21 +20,26 @@ export class SesService implements EmailProvider {
   private readonly logger = new Logger(SesService.name);
 
   constructor(private readonly configService: ConfigService) {
-    const region = this.configService.get<string>('AWS_REGION');
-    const accessKeyId = this.configService.get<string>('AWS_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('AWS_SECRET_ACCESS_KEY');
+    // Debug: Log all region-related environment variables
+    const awsSesRegion = this.configService.get<string>('AWS_SES_REGION');
+    const awsRegion = this.configService.get<string>('AWS_REGION');
+    const processAwsRegion = process.env.AWS_REGION;
+    
+    this.logger.log(`DEBUG - AWS_SES_REGION from config: ${awsSesRegion}`);
+    this.logger.log(`DEBUG - AWS_REGION from config: ${awsRegion}`);
+    this.logger.log(`DEBUG - AWS_REGION from process.env: ${processAwsRegion}`);
+    
+    // Use AWS_SES_REGION first, then hardcoded ap-south-1 (not AWS_REGION which Lambda sets automatically)
+    const region = awsSesRegion || 'ap-south-1';
+    
+    // We do NOT manually set credentials here. 
+    // The AWS SDK (v3) automatically detects credentials from the environment:
+    // 1. In Lambda: It uses the IAM Role credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN)
+    // 2. Locally: It uses credentials from process.env (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) provided by .env
+    
+    this.logger.log(`Initializing SES Client in region: ${region}`);
 
-    if (!region || !accessKeyId || !secretAccessKey) {
-      this.logger.warn('⚠️  AWS SES credentials not fully configured');
-    }
-
-    this.ses = new SESClient({
-      region,
-      credentials: {
-        accessKeyId: accessKeyId || '',
-        secretAccessKey: secretAccessKey || '',
-      },
-    });
+    this.ses = new SESClient({ region });
   }
 
   /**
